@@ -1,0 +1,16 @@
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  font-size: 14px;
+  color: #333;
+}
+
+.left {
+  font-style: italic;
+}
+
+.italic {
+  font-style: italic;
+}
