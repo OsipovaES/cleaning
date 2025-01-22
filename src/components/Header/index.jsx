@@ -13,6 +13,10 @@ export const Header = () => {
     navigate("/");
   };
 
+  const handleNavigateToLogin = () => {
+    navigate("/login");
+  };
+
   return (
     <header className={styles.head}>
       <div onClick={handleNavigateToRegistration} className={styles.logo}>
@@ -23,7 +27,7 @@ export const Header = () => {
         </div>
       </div>
       <div className={styles.btnWrapper}>
-        <Button>Войти</Button>
+        <Button onClick={handleNavigateToLogin}>Войти</Button>
         <Button onClick={handleNavigateToRequests}>Создать заявку</Button>
       </div>
     </header>

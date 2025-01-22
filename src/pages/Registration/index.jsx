@@ -1,7 +1,15 @@
 import { Form } from "../../components/Form";
 import { Layout } from "../../components/layout";
+import { useNavigate } from "react-router-dom";
 
 export const Registration = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    navigate("/requests");
+  };
+
   return (
     <Layout title="Регистрация">
       <Form
@@ -45,6 +53,7 @@ export const Registration = () => {
           },
         ]}
         buttonText="Зарегистрироваться"
+        onSubmit={handleLogin}
       />
     </Layout>
   );
