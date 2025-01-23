@@ -1,61 +1,69 @@
-import { useState } from "react";
 import { Form } from "../../components/Form";
 import { Layout } from "../../components/layout";
+import { useNavigate } from "react-router-dom";
 
 export const CreateRequest = () => {
-  const [formData, setFormData] = useState({
-    address: "",
-    contact: "",
-    dateTime: "",
-    service: "Общий клининг",
-    paymentType: "Наличные",
-  });
+  const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleCreateRequest = async (e) => {
     e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    data.dateTime = new Date(data.dateTime).toISOString();
+
+    try {
+      const response = await fetch("/api/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(error.error || "Ошибка при создании заявки");
+        return;
+      }
+
+      await response.json();
+      alert("Заявка успешно создана!");
+      navigate("/requests");
+    } catch (error) {
+      console.error("Ошибка при создании заявки:", error.message);
+      alert("Не удалось создать заявку. Попробуйте снова.");
+    }
   };
 
   return (
     <Layout title="Формирование заявки">
       <Form
         description="Заполните данные для новой заявки"
-        onSubmit={handleSubmit}
+        onSubmit={handleCreateRequest}
         inputs={[
           {
             label: "Адрес",
             placeholder: "Введите адрес",
             name: "address",
-            value: formData.address,
-            onChange: handleInputChange,
+            type: "text",
           },
           {
             label: "Контакты",
             placeholder: "+7 (900) 123-45-67",
             name: "contact",
             type: "tel",
-            value: formData.contact,
-            onChange: handleInputChange,
           },
           {
             label: "Дата и время",
             placeholder: "ДД/ММ/ГГ, ЧЧ:ММ",
             name: "dateTime",
             type: "datetime-local",
-            value: formData.dateTime,
-            onChange: handleInputChange,
           },
         ]}
         selects={[
           {
             label: "Услуга",
             name: "service",
-            value: formData.service,
-            onChange: handleInputChange,
             options: [
               { label: "Общий клининг", value: "Общий клининг" },
               { label: "Генеральная уборка", value: "Генеральная уборка" },
@@ -70,8 +78,6 @@ export const CreateRequest = () => {
           {
             label: "Тип оплаты",
             name: "paymentType",
-            value: formData.paymentType,
-            onChange: handleInputChange,
             options: [
               { label: "Наличные", value: "Наличные" },
               { label: "По карте", value: "По карте" },

@@ -3,20 +3,27 @@ import pool from "./pool.js";
 // Получение всех заявок
 const getAllRequests = async () => {
   const result = await pool.query(
-    "SELECT * FROM requests ORDER BY created_at DESC"
+    `SELECT 
+       address, 
+       contact, 
+       to_char(date_time, 'YYYY-MM-DD HH24:MI:SS') AS "dateTime", -- Преобразуем дату/время в строку
+       service, 
+       payment_type AS "paymentType", 
+       status 
+     FROM requests 
+     ORDER BY created_at DESC`
   );
   return result.rows;
 };
 
 // Создание новой заявки
 const createRequest = async (data) => {
-  const { user_id, title, address, contact, service, payment_type, status } =
-    data;
+  const { address, contact, dateTime, service, paymentType } = data;
 
   const result = await pool.query(
-    `INSERT INTO requests (user_id, title, address, contact, service, payment_type, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-    [user_id, title, address, contact, service, payment_type, status]
+    `INSERT INTO requests (address, contact, date_time, service, payment_type, status)
+       VALUES ($1, $2, $3::timestamp, $4, $5, 'ожидает') RETURNING *`,
+    [address, contact, dateTime, service, paymentType]
   );
 
   return result.rows[0];

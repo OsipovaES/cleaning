@@ -9,6 +9,13 @@ export const Card = ({
   onButtonClick,
   buttonText,
 }) => {
+  console.log("Параметры, переданные в Card:", {
+    title,
+    details,
+    data,
+    status,
+  });
+
   const getStatusClass = (status) => {
     switch (status) {
       case "Отклонена":
@@ -26,7 +33,6 @@ export const Card = ({
     <div className={styles.card}>
       <h2 className={styles.title}>{title}</h2>
 
-      {/* Динамический список данных */}
       {data && data.length > 0 && (
         <ul className={styles.dataList}>
           {data.map((item, index) => (
@@ -37,17 +43,14 @@ export const Card = ({
         </ul>
       )}
 
-      {/* Отображение дополнительных деталей */}
       {details && <p className={styles.details}>{details}</p>}
 
-      {/* Отображение статуса */}
       {status && (
         <span className={`${styles.status} ${getStatusClass(status)}`}>
           {status}
         </span>
       )}
 
-      {/* Кнопка */}
       {onButtonClick && <Button onClick={onButtonClick}>{buttonText}</Button>}
     </div>
   );
