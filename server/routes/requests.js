@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { getAllRequests, createRequest } from "../db/queries";
+import { getAllRequests, createRequest } from "../db/queries.js";
+
 const router = Router();
 
-router.get("/requests", async (req, res) => {
+// Получение всех заявок
+router.get("/", async (req, res) => {
   try {
     const requests = await getAllRequests();
     res.json(requests);
@@ -11,7 +13,8 @@ router.get("/requests", async (req, res) => {
   }
 });
 
-router.post("/requests", async (req, res) => {
+// Создание новой заявки
+router.post("/", async (req, res) => {
   try {
     const newRequest = await createRequest(req.body);
     res.json(newRequest);

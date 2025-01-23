@@ -1,19 +1,47 @@
-import { query } from "./pool";
+import pool from "./pool.js";
 
+// Получение всех заявок
 const getAllRequests = async () => {
-  const result = await query("SELECT * FROM requests ORDER BY created_at DESC");
+  const result = await pool.query(
+    "SELECT * FROM requests ORDER BY created_at DESC"
+  );
   return result.rows;
 };
 
+// Создание новой заявки
 const createRequest = async (data) => {
   const { user_id, title, address, contact, service, payment_type, status } =
     data;
-  const result = await query(
+
+  const result = await pool.query(
     `INSERT INTO requests (user_id, title, address, contact, service, payment_type, status)
      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
     [user_id, title, address, contact, service, payment_type, status]
   );
+
   return result.rows[0];
 };
 
-export default { getAllRequests, createRequest };
+// Регистрация нового пользователя
+const registerUser = async (userData) => {
+  const { name, phone, email, username, passwordHash } = userData;
+
+  const result = await pool.query(
+    `INSERT INTO users (name, phone, email, username, password_hash)
+     VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, username, created_at`,
+    [name, phone, email, username, passwordHash]
+  );
+
+  return result.rows[0];
+};
+
+// Поиск пользователя по логину
+const findUserByUsername = async (username) => {
+  const result = await pool.query(`SELECT * FROM users WHERE username = $1`, [
+    username,
+  ]);
+
+  return result.rows[0];
+};
+
+export { getAllRequests, createRequest, registerUser, findUserByUsername };

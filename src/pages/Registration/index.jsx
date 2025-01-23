@@ -5,9 +5,36 @@ import { useNavigate } from "react-router-dom";
 export const Registration = () => {
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    navigate("/requests");
+
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    if (data.password !== data.confirmPassword) {
+      alert("Пароли не совпадают");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(error.message);
+        return;
+      }
+
+      await response.json();
+      alert("Регистрация успешна!");
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -53,7 +80,7 @@ export const Registration = () => {
           },
         ]}
         buttonText="Зарегистрироваться"
-        onSubmit={handleLogin}
+        onSubmit={handleRegister}
       />
     </Layout>
   );

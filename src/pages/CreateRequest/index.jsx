@@ -18,7 +18,6 @@ export const CreateRequest = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Созданная заявка:", formData);
   };
 
   return (

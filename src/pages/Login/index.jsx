@@ -5,6 +5,7 @@ import { Layout } from "../../components/layout";
 
 export const Login = () => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -12,17 +13,34 @@ export const Login = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // if (formData.username === "adminka" && formData.password === "admin1234") {
-    //   navigate("/admin-panel");
-    // } else {
-    //   navigate("/requests");
-    // }
-    navigate("/admin-panel");
+
+    try {
+      const response = await fetch("/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(error.message);
+        return;
+      }
+
+      await response.json();
+      alert("Вход успешен!");
+      navigate("/requests");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
