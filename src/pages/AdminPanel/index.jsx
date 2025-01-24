@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "../../components/Card";
 import { Modal } from "../../components/Modal";
 import { StatusChangeForm } from "../../components/StatusChangeForm";
@@ -6,47 +6,52 @@ import { Layout } from "../../components/layout";
 import styles from "./adminPanel.module.css";
 
 export const AdminPanel = () => {
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      title: "Заявка №1",
-      data: [
-        { label: "Услуга", value: "Генеральная уборка" },
-        { label: "Адрес", value: "ул. Ленина, 10, кв. 15" },
-        { label: "Контакты", value: "+7 (900) 123-45-67" },
-        { label: "Дата и время", value: "22.01.2024, 14:00" },
-        { label: "Тип оплаты", value: "По карте" },
-      ],
-      status: "В обработке",
-    },
-    {
-      id: 2,
-      title: "Заявка №2",
-      data: [
-        { label: "Услуга", value: "Химчистка мебели" },
-        { label: "Адрес", value: "ул. Московская, 5, кв. 12" },
-        { label: "Контакты", value: "+7 (901) 654-32-10" },
-        { label: "Дата и время", value: "25.01.2024, 11:30" },
-        { label: "Тип оплаты", value: "Наличные" },
-      ],
-      status: "В обработке",
-    },
-    {
-      id: 3,
-      title: "Заявка №3",
-      data: [
-        { label: "Услуга", value: "Послестроительная уборка" },
-        { label: "Адрес", value: "ул. Баумана, 18" },
-        { label: "Контакты", value: "+7 (902) 777-88-99" },
-        { label: "Дата и время", value: "28.01.2024, 16:00" },
-        { label: "Тип оплаты", value: "По карте" },
-      ],
-      status: "В обработке",
-    },
-  ]);
-
+  const [requests, setRequests] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [currentRequest, setCurrentRequest] = useState(null);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const response = await fetch("/api/requests");
+        if (!response.ok) {
+          throw new Error("Не удалось получить заявки");
+        }
+        const data = await response.json();
+
+        console.log("Полученные данные с сервера:", data);
+
+        const formattedData = data.map((request) => {
+          return {
+            id: request.id,
+            title: `Заявка №${request.id}`,
+            data: [
+              { label: "Услуга", value: request.service || "Не указано" },
+              { label: "Адрес", value: request.address || "Не указано" },
+              { label: "Контакты", value: request.contact || "Не указано" },
+              {
+                label: "Дата и время",
+                value: request.date_time
+                  ? new Date(request.date_time).toLocaleString("ru-RU")
+                  : "Не указано",
+              },
+              {
+                label: "Тип оплаты",
+                value: request.payment_type || "Не указано",
+              },
+            ],
+            status: request.status,
+          };
+        });
+
+        setRequests(formattedData);
+      } catch (error) {
+        console.error("Ошибка при получении заявок:", error.message);
+      }
+    };
+
+    fetchRequests();
+  }, []);
 
   const handleOpenModal = (request) => {
     setCurrentRequest(request);
@@ -58,13 +63,41 @@ export const AdminPanel = () => {
     setCurrentRequest(null);
   };
 
-  const handleUpdateStatus = (id, status, reason) => {
-    setRequests((prev) =>
-      prev.map((request) =>
-        request.id === id ? { ...request, status, reason } : request
-      )
-    );
-    handleCloseModal();
+  const handleUpdateStatus = async (id, status, reason) => {
+    console.log("Передача данных на сервер:", { id, status, reason });
+
+    try {
+      const response = await fetch(`/api/requests/${id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status, reason }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Не удалось обновить статус");
+      }
+
+      const updatedRequest = await response.json();
+      console.log(
+        "Полученные данные после обновления статуса:",
+        updatedRequest
+      );
+
+      setRequests((prev) =>
+        prev.map((request) =>
+          request.id === updatedRequest.id
+            ? { ...request, status: updatedRequest.status }
+            : request
+        )
+      );
+
+      handleCloseModal();
+    } catch (error) {
+      console.error("Ошибка при обновлении статуса:", error.message);
+      alert("Не удалось обновить статус заявки. Попробуйте снова.");
+    }
   };
 
   return (
@@ -83,7 +116,7 @@ export const AdminPanel = () => {
           ))}
         </div>
 
-        {isModalOpen && (
+        {isModalOpen && currentRequest && (
           <Modal onClose={handleCloseModal}>
             <StatusChangeForm
               request={currentRequest}

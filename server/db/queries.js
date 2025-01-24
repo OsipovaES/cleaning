@@ -4,11 +4,12 @@ import pool from "./pool.js";
 const getAllRequests = async () => {
   const result = await pool.query(
     `SELECT 
+       id, 
        address, 
        contact, 
-       to_char(date_time, 'YYYY-MM-DD HH24:MI:SS') AS "dateTime", -- Преобразуем дату/время в строку
+       to_char(date_time, 'YYYY-MM-DD HH24:MI:SS') AS "date_time", 
        service, 
-       payment_type AS "paymentType", 
+       payment_type AS "payment_type", 
        status 
      FROM requests 
      ORDER BY created_at DESC`
@@ -44,10 +45,10 @@ const registerUser = async (userData) => {
 
 // Поиск пользователя по логину
 const findUserByUsername = async (username) => {
-  const result = await pool.query(`SELECT * FROM users WHERE username = $1`, [
-    username,
-  ]);
-
+  const result = await pool.query(
+    `SELECT id, username, password_hash, role FROM users WHERE username = $1`,
+    [username]
+  );
   return result.rows[0];
 };
 

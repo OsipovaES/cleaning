@@ -39,6 +39,7 @@ router.post("/login", async (req, res) => {
 
   try {
     const user = await findUserByUsername(username);
+
     if (!user) {
       return res.status(401).json({ message: "Неверный логин или пароль" });
     }
@@ -50,7 +51,11 @@ router.post("/login", async (req, res) => {
 
     res.json({
       message: "Авторизация успешна",
-      user: { id: user.id, username: user.username },
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: "Ошибка сервера", error });

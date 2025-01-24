@@ -9,20 +9,13 @@ export const Card = ({
   onButtonClick,
   buttonText,
 }) => {
-  console.log("Параметры, переданные в Card:", {
-    title,
-    details,
-    data,
-    status,
-  });
-
   const getStatusClass = (status) => {
     switch (status) {
-      case "Отклонена":
+      case "отклонена":
         return styles.rejected;
-      case "Выполнена":
+      case "выполнена":
         return styles.completed;
-      case "В работе":
+      case "в работе":
         return styles.inProgress;
       default:
         return styles.defaultStatus;

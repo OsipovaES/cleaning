@@ -8,6 +8,13 @@ export const StatusChangeForm = ({ request, onUpdateStatus }) => {
   const [status, setStatus] = useState(request.status);
   const [reason, setReason] = useState("");
 
+  const isFormValid = () => {
+    if (status === "Отклонена" && !reason.trim()) {
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onUpdateStatus(request.id, status, reason);
@@ -16,19 +23,21 @@ export const StatusChangeForm = ({ request, onUpdateStatus }) => {
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <h2 className={styles.title}>Изменение статуса заявки</h2>
+
       <Select
         label="Статус:"
         name="status"
         value={status}
         onChange={(e) => setStatus(e.target.value)}
         options={[
-          { label: "В обработке", value: "В обработке" },
-          { label: "Выполнена", value: "Выполнена" },
-          { label: "Отклонена", value: "Отклонена" },
+          { label: "ожидает", value: "ожидает" },
+          { label: "в работе", value: "в работе" },
+          { label: "выполнена", value: "выполнена" },
+          { label: "отклонена", value: "отклонена" },
         ]}
       />
 
-      {status === "Отклонена" && (
+      {status === "отклонена" && (
         <Input
           label="Причина отмены:"
           placeholder="Введите причину отмены"
@@ -38,7 +47,9 @@ export const StatusChangeForm = ({ request, onUpdateStatus }) => {
         />
       )}
 
-      <Button type="submit">Изменить</Button>
+      <Button type="submit" disabled={!isFormValid()}>
+        Изменить
+      </Button>
     </form>
   );
 };

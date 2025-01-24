@@ -35,9 +35,16 @@ export const Login = () => {
         return;
       }
 
-      await response.json();
+      const { user } = await response.json();
       alert("Вход успешен!");
-      navigate("/requests");
+
+      console.log(user.role);
+
+      if (user.role === "admin") {
+        navigate("/admin-panel");
+      } else {
+        navigate("/requests");
+      }
     } catch (error) {
       console.log(error);
     }
