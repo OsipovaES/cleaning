@@ -25,6 +25,7 @@ export const Form = ({
             name={input.name}
             value={input.value}
             onChange={input.onChange}
+            error={input.error}
           />
         ))}
 

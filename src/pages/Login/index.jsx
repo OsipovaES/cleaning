@@ -2,6 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form } from "../../components/Form";
 import { Layout } from "../../components/layout";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  username: z.string().min(1, "Логин обязателен"),
+  password: z.string().min(1, "Пароль обязателен"),
+});
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -11,16 +17,34 @@ export const Login = () => {
     password: "",
   });
 
+  const [errors, setErrors] = useState({});
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }));
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    const validation = loginSchema.safeParse(formData);
+
+    if (!validation.success) {
+      const validationErrors = validation.error.format();
+      setErrors({
+        username: validationErrors.username?._errors[0],
+        password: validationErrors.password?._errors[0],
+      });
+      return;
+    }
 
     try {
       const response = await fetch("/api/users/login", {
@@ -31,14 +55,12 @@ export const Login = () => {
 
       if (!response.ok) {
         const error = await response.json();
-        alert(error.message);
+        setErrors({ form: error.message });
         return;
       }
 
       const { user } = await response.json();
       alert("Вход успешен!");
-
-      console.log(user.role);
 
       if (user.role === "admin") {
         navigate("/admin-panel");
@@ -47,6 +69,7 @@ export const Login = () => {
       }
     } catch (error) {
       console.log(error);
+      setErrors({ form: "Ошибка сервера. Попробуйте позже." });
     }
   };
 
@@ -61,6 +84,7 @@ export const Login = () => {
             name: "username",
             value: formData.username,
             onChange: handleInputChange,
+            error: errors.username,
           },
           {
             label: "Пароль",
@@ -69,10 +93,12 @@ export const Login = () => {
             name: "password",
             value: formData.password,
             onChange: handleInputChange,
+            error: errors.password,
           },
         ]}
         buttonText="Войти"
         onSubmit={handleLogin}
+        formError={errors.form}
       />
     </Layout>
   );

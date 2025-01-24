@@ -28,3 +28,14 @@
 .input:focus {
   border-color: #007bff;
 }
+
+.inputError {
+  border-color: #d9534f;
+  background-color: #fff6f6;
+}
+
+.errorMessage {
+  color: #d9534f;
+  font-size: 12px;
+  margin-top: -4px;
+}

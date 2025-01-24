@@ -7,6 +7,7 @@ export const Input = ({
   name,
   value,
   onChange,
+  error,
 }) => {
   return (
     <div className={styles.inputWrapper}>
@@ -16,7 +17,7 @@ export const Input = ({
         </label>
       )}
       <input
-        className={styles.input}
+        className={`${styles.input} ${error ? styles.inputError : ""}`}
         type={type}
         id={name}
         name={name}
@@ -24,6 +25,7 @@ export const Input = ({
         value={value}
         onChange={onChange}
       />
+      {error && <div className={styles.errorMessage}>{error}</div>}{" "}
     </div>
   );
 };
